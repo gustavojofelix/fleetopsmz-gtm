@@ -1,0 +1,26 @@
+{
+  "name": "fleetopsmz-gtm",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FleetOps MZ Go-to-Market Intelligence System: lead qualification, research and outreach drafting pipeline.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"tests/**/*.test.ts\"",
+    "pipeline": "tsx src/pipeline.ts",
+    "check-config": "tsx src/pipeline.ts check-config"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.112.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^6.0.3"
+  }
+}

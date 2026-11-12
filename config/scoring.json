@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "criteria": [
+    { "key": "segment_relevance", "label": "Business segment relevance", "max": 20 },
+    { "key": "fleet_activity", "label": "Evidence of commercial fleet activity", "max": 20 },
+    { "key": "operational_complexity", "label": "Operational complexity", "max": 15 },
+    { "key": "geographic_relevance", "label": "Geographic relevance", "max": 15 },
+    { "key": "recurring_transport", "label": "Evidence of recurring transport activity", "max": 10 },
+    { "key": "cost_control_need", "label": "Potential need for fleet cost control", "max": 10 },
+    { "key": "contact_availability", "label": "Public business contact availability", "max": 5 },
+    { "key": "digital_maturity", "label": "Evidence of digital or operational maturity", "max": 5 }
+  ],
+  "bands": { "A": 80, "B": 60, "C": 40 },
+  "coverage_threshold": 0.5,
+  "auto_research_priorities": ["A", "B"],
+  "geographic_points": {
+    "by_priority_rank": { "1": 15, "2": 12, "3": 10, "4": 9 },
+    "listed_city": 7,
+    "unlisted_location": 5
+  },
+  "contact_points": { "one_channel": 3, "two_or_more_channels": 5 }
+}

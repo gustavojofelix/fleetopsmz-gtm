@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "country": "Mozambique",
+  "cities": [
+    { "city": "Beira", "province": "Sofala", "aliases": ["Cidade da Beira"], "priority_rank": 1, "corridors": ["Beira Corridor"] },
+    { "city": "Dondo", "province": "Sofala", "aliases": [], "priority_rank": 1, "corridors": ["Beira Corridor"] },
+    { "city": "Maputo", "province": "Maputo Cidade", "aliases": ["Cidade de Maputo", "Maputo City"], "priority_rank": 2, "corridors": ["Maputo Corridor"] },
+    { "city": "Matola", "province": "Maputo", "aliases": ["Cidade da Matola"], "priority_rank": 2, "corridors": ["Maputo Corridor"] },
+    { "city": "Tete", "province": "Tete", "aliases": ["Cidade de Tete"], "priority_rank": 3, "corridors": ["Tete and cross-border routes"] },
+    { "city": "Moatize", "province": "Tete", "aliases": [], "priority_rank": 3, "corridors": ["Tete and cross-border routes"] },
+    { "city": "Nacala", "province": "Nampula", "aliases": ["Nacala-Porto", "Nacala Porto"], "priority_rank": 4, "corridors": ["Nacala Corridor"] },
+    { "city": "Nampula", "province": "Nampula", "aliases": ["Cidade de Nampula"], "priority_rank": null, "corridors": ["Nacala Corridor"] },
+    { "city": "Chimoio", "province": "Manica", "aliases": [], "priority_rank": null, "corridors": ["Beira Corridor"] },
+    { "city": "Quelimane", "province": "Zambézia", "aliases": [], "priority_rank": null, "corridors": [] },
+    { "city": "Pemba", "province": "Cabo Delgado", "aliases": [], "priority_rank": null, "corridors": [] },
+    { "city": "Lichinga", "province": "Niassa", "aliases": [], "priority_rank": null, "corridors": [] },
+    { "city": "Xai-Xai", "province": "Gaza", "aliases": ["Xai Xai"], "priority_rank": null, "corridors": [] },
+    { "city": "Inhambane", "province": "Inhambane", "aliases": [], "priority_rank": null, "corridors": [] },
+    { "city": "Maxixe", "province": "Inhambane", "aliases": [], "priority_rank": null, "corridors": [] }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "sender": {
+    "name": "Gustavo Felix",
+    "role": "CEO",
+    "company": "FleetOps MZ",
+    "email": "gustavojofelix@gmail.com",
+    "phone": "+258858946440",
+    "website": "https://alvorsoftware.com/"
+  },
+  "max_personas": 3,
+  "max_drafts_per_lead": 6
+}

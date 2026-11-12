@@ -1,0 +1,20 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Lead data stays local: it contains business contact details.
+# Folder structure is kept through .gitkeep files.
+data/**
+!data/**/
+!data/**/.gitkeep
+
+# Logs and editor files
+*.log
+.DS_Store
+.vscode/
+.idea/

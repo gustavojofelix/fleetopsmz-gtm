@@ -1,0 +1,15 @@
+[
+  {
+    "company_name": "REPLACE WITH COMPANY NAME (required)",
+    "city": null,
+    "province": null,
+    "phone": null,
+    "email": null,
+    "website": null,
+    "business_category": null,
+    "business_description": null,
+    "source_url": null,
+    "source_name": null,
+    "collected_at": null
+  }
+]
