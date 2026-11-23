@@ -37,7 +37,7 @@ import {
   createScriptedLlm,
   fixedClock,
   loadConfigWithSender,
-  loadTestConfig,
+  loadConfigWithoutSender,
   noSleepRetry,
   rawCsv,
   researchReading,
@@ -250,7 +250,7 @@ describe('full pipeline', () => {
 
   it('stops before writing anything when the sender is not configured', async () => {
     const p = await setup();
-    p.config = await loadTestConfig();
+    p.config = await loadConfigWithoutSender();
     await assert.rejects(runAll(p), (error: unknown) =>
       isPipelineError(error) && error.code === 'config' && /outreach\.json/.test(error.message),
     );

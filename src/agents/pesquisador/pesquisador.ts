@@ -26,7 +26,8 @@ import {
   numberResults,
 } from './research-input.js';
 
-const MAX_OUTPUT_TOKENS = 4_000;
+/** Includes the model's thinking, which is on by default on current models. */
+const MAX_OUTPUT_TOKENS = 16_000;
 
 export interface PesquisadorDeps {
   llm: LlmClient;

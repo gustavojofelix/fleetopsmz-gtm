@@ -329,6 +329,18 @@ export function createFakeSearchProvider(
   };
 }
 
+/** Test configuration with an empty sender, whatever config/outreach.json holds. */
+export async function loadConfigWithoutSender(): Promise<ProjectConfig> {
+  const config = await loadTestConfig();
+  return {
+    ...config,
+    outreach: {
+      ...config.outreach,
+      sender: { ...config.outreach.sender, name: null, role: null, email: null, phone: null, website: null },
+    },
+  };
+}
+
 /** Test configuration with a sender filled in, so Agent 3 can run. */
 export async function loadConfigWithSender(capabilities?: CapabilityRegistry): Promise<ProjectConfig> {
   const config = await loadTestConfig();

@@ -1,5 +1,5 @@
 import type { ZodType, ZodTypeDef } from 'zod';
-import { PipelineError } from '../infra/errors.js';
+import { PipelineError, isPipelineError } from '../infra/errors.js';
 import { sha256Hex } from '../infra/hash.js';
 import type { Logger } from '../infra/logger.js';
 import { DEFAULT_RETRY, withRetry } from '../infra/retry.js';
@@ -85,7 +85,9 @@ export async function callStructured<T>(
   const usage: LlmUsage = { input_tokens: 0, output_tokens: 0 };
   let problems: string[] = [];
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    const response = await withRetry(
+    let response;
+    try {
+      response = await withRetry(
       () =>
         options.llm.completeJson({
           model: options.model,
@@ -106,7 +108,22 @@ export async function callStructured<T>(
             error: info.error,
           }),
       },
-    );
+      );
+    } catch (error) {
+      // A reply with no usable structure gets the same single repair attempt
+      // as a reply that fails validation.
+      if (attempt === 1 && isPipelineError(error) && error.code === 'model_output_invalid') {
+        problems = [error.message];
+        options.logger.warn('model_output.rejected', {
+          lead_id: options.leadId,
+          schema: options.schemaName,
+          attempt,
+          problems,
+        });
+        continue;
+      }
+      throw error;
+    }
     usage.input_tokens += response.usage.input_tokens;
     usage.output_tokens += response.usage.output_tokens;
 

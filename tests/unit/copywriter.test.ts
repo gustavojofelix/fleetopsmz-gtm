@@ -32,6 +32,7 @@ import {
   createScriptedLlm,
   fixedClock,
   loadConfigWithSender,
+  loadConfigWithoutSender,
   loadTestConfig,
   makeDossier,
   noSleepRetry,
@@ -343,7 +344,7 @@ describe('Copywriter agent', () => {
   });
 
   it('refuses to run until the sender is configured', async () => {
-    const shipped = await loadTestConfig();
+    const shipped = await loadConfigWithoutSender();
     assert.deepEqual(senderProblems(shipped.outreach), ['sender.name is not set', 'set sender.email or sender.phone']);
     const { agent, llm } = await agentWith([(request) => copyReply(request)], shipped);
     const result = await agent.run(await makeDossier(), CONTEXT);

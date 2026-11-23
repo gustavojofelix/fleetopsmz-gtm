@@ -18,7 +18,8 @@ import {
   MineradorModelOutputSchema,
 } from './model-output.js';
 
-const MAX_OUTPUT_TOKENS = 2_000;
+/** Includes the model's thinking, which is on by default on current models. */
+const MAX_OUTPUT_TOKENS = 16_000;
 
 export type AssessmentCache = JsonCache;
 

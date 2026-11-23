@@ -277,6 +277,20 @@ describe('Minerador agent', () => {
     assert.equal(llm.requests.length, 2);
   });
 
+  it('asks again once when the reply did not call the tool', async () => {
+    const noTool = new PipelineError({ code: 'model_output_invalid', message: 'The reply did not call the tool' });
+    const recovered = await agentWith([noTool, assessment()]);
+    const result = await recovered.agent.run(await candidateFrom([SOURCED_ROW]), CONTEXT);
+    assert.equal(result.status, 'ok');
+    assert.equal(recovered.llm.requests.length, 2);
+    assert.match(recovered.llm.requests[1]?.user ?? '', /did not call the tool/);
+
+    const never = await agentWith([noTool]);
+    const failed = await never.agent.run(await candidateFrom([SOURCED_ROW]), CONTEXT);
+    assert.equal(failed.status, 'failed');
+    assert.equal(never.llm.requests.length, 2);
+  });
+
   it('retries transient provider errors, then succeeds', async () => {
     const transient = new PipelineError({ code: 'provider_transient', message: 'down' });
     const { agent, llm } = await agentWith([transient, transient, assessment()]);

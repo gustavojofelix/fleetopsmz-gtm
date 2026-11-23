@@ -12,11 +12,11 @@ export interface MessageCreateParams {
   system: string;
   messages: { role: 'user'; content: string }[];
   tools: { name: string; description: string; input_schema: Record<string, unknown> }[];
-  tool_choice: { type: 'tool'; name: string };
+  tool_choice: { type: 'auto' };
 }
 
 export interface MessageResponse {
-  content: { type: string; name?: string; input?: unknown }[];
+  content: { type: string; name?: string; input?: unknown; text?: string }[];
   model: string;
   stop_reason: string | null;
   usage: { input_tokens: number; output_tokens: number };
@@ -77,10 +77,27 @@ export function mapProviderError(error: unknown, provider = 'anthropic'): Pipeli
   });
 }
 
+/** Reads a JSON object from a plain-text reply, with or without a code fence. */
+export function extractJsonObject(text: string): unknown {
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start === -1 || end <= start) return undefined;
+  try {
+    return JSON.parse(text.slice(start, end + 1)) as unknown;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
- * LlmClient backed by the Messages API. Structured output is obtained by
- * forcing a single tool call whose input schema is the expected JSON schema.
- * The result is still validated by the agent before use.
+ * LlmClient backed by the Messages API. The model is asked, in the user turn,
+ * to call one tool whose input schema is the expected JSON schema.
+ *
+ * Current Claude models reject forced tool choice (tool_choice "tool" or
+ * "any"), so the request uses tool_choice "auto" with an explicit instruction.
+ * The model may therefore answer in text: a JSON object in the text is
+ * accepted as a fallback. Either way the agent validates the result with Zod
+ * before using it, and asks once for a correction if it is invalid.
  */
 export function createAnthropicLlmClient(api: MessagesApi): LlmClient {
   return {
@@ -98,7 +115,12 @@ export function createAnthropicLlmClient(api: MessagesApi): LlmClient {
           model: request.model,
           max_tokens: request.maxTokens,
           system: request.system,
-          messages: [{ role: 'user', content: request.user }],
+          messages: [
+            {
+              role: 'user',
+              content: `${request.user}\n\nReply by calling the \`${toolName}\` tool exactly once with the complete result. Do not answer in plain text.`,
+            },
+          ],
           tools: [
             {
               name: toolName,
@@ -106,7 +128,7 @@ export function createAnthropicLlmClient(api: MessagesApi): LlmClient {
               input_schema: request.jsonSchema,
             },
           ],
-          tool_choice: { type: 'tool', name: toolName },
+          tool_choice: { type: 'auto' },
         });
       } catch (error) {
         throw mapProviderError(error);
@@ -124,19 +146,22 @@ export function createAnthropicLlmClient(api: MessagesApi): LlmClient {
         });
       }
       const block = response.content.find((b) => b.type === 'tool_use' && b.name === toolName);
-      if (block === undefined || block.input === undefined) {
+      let json: unknown = block?.input;
+      if (json === undefined) {
+        const text = response.content
+          .filter((b) => b.type === 'text' && typeof b.text === 'string')
+          .map((b) => b.text)
+          .join('\n');
+        json = extractJsonObject(text);
+      }
+      if (json === undefined) {
         throw new PipelineError({
           code: 'model_output_invalid',
-          message: 'Model reply contained no structured result',
-          context: { schema: request.schemaName, stop_reason: response.stop_reason },
+          message: `The reply did not call the ${toolName} tool`,
+          context: { schema: request.schemaName, stop_reason: response.stop_reason, usage },
         });
       }
-      return {
-        json: block.input,
-        rawText: JSON.stringify(block.input),
-        model: response.model,
-        usage,
-      };
+      return { json, rawText: JSON.stringify(json), model: response.model, usage };
     },
   };
 }

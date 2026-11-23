@@ -24,7 +24,8 @@ import { PERSONA_LABELS, buildTargets } from './targets.js';
 import type { DraftTarget } from './targets.js';
 import { BODY_LIMITS, checkCopy, listProblems } from './validate.js';
 
-const MAX_OUTPUT_TOKENS = 4_000;
+/** Includes the model's thinking, which is on by default on current models. */
+const MAX_OUTPUT_TOKENS = 16_000;
 
 /** The only description of the product allowed while no capability is verified. */
 export const NEUTRAL_PRODUCT_DESCRIPTION = {

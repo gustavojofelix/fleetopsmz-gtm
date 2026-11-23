@@ -3,7 +3,11 @@ import { mkdtemp, readFile, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
-import { createAnthropicLlmClient, mapProviderError } from '../../src/adapters/anthropic.js';
+import {
+  createAnthropicLlmClient,
+  extractJsonObject,
+  mapProviderError,
+} from '../../src/adapters/anthropic.js';
 import type { MessageCreateParams, MessageResponse } from '../../src/adapters/anthropic.js';
 import { createFsStore } from '../../src/adapters/fs-store.js';
 import { isPipelineError } from '../../src/infra/errors.js';
@@ -42,7 +46,7 @@ function httpError(status: number, headers?: unknown): Error {
 }
 
 describe('Anthropic adapter', () => {
-  it('forces one tool call with the schema and returns its input', async () => {
+  it('asks for one tool call without forcing it, and returns the tool input', async () => {
     const api = apiReturning({
       content: [
         { type: 'text' },
@@ -58,9 +62,24 @@ describe('Anthropic adapter', () => {
     assert.equal(sent?.model, 'test-model');
     assert.equal(sent?.max_tokens, 500);
     assert.equal(sent?.system, 'System prompt.');
-    assert.deepEqual(sent?.messages, [{ role: 'user', content: 'User message.' }]);
-    assert.deepEqual(sent?.tool_choice, { type: 'tool', name: 'record_thing' });
+    assert.equal(sent?.messages.length, 1);
+    assert.ok(sent?.messages[0]?.content.startsWith('User message.'));
+    assert.match(sent?.messages[0]?.content ?? '', /calling the `record_thing` tool exactly once/);
+    // Current Claude models reject tool_choice "tool" and "any" with a 400 error.
+    assert.deepEqual(sent?.tool_choice, { type: 'auto' });
     assert.deepEqual(sent?.tools[0]?.input_schema, { type: 'object' });
+  });
+
+  it('accepts a JSON object in a text reply when the tool was not called', async () => {
+    const client = createAnthropicLlmClient(
+      apiReturning({
+        stop_reason: 'end_turn',
+        content: [{ type: 'thinking' }, { type: 'text', text: 'Here it is:\n```json\n{"ok": true, "n": 2}\n```' }],
+      }),
+    );
+    assert.deepEqual((await client.completeJson(REQUEST)).json, { ok: true, n: 2 });
+    assert.equal(extractJsonObject('no json here'), undefined);
+    assert.equal(extractJsonObject('{broken'), undefined);
   });
 
   it('reports a reply without a structured result as invalid model output', async () => {
